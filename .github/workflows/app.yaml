@@ -64,53 +64,53 @@ jobs:
         kubectl apply -f vs-frontend.yaml
         
 
-#   Job2:
-#     needs: Job1
-#     name: Create subdomain in Cloudflare
-#     runs-on: ubuntu-latest    
+  Job2:
+     needs: Job1
+     name: Create subdomain in Cloudflare
+     runs-on: ubuntu-latest    
     
-#     steps:
-#     - name: Checkout
-#       uses: actions/checkout@v2
+     steps:
+     - name: Checkout
+       uses: actions/checkout@v2
       
       
-#     ## Setup gcloud CLI
-#     - uses: google-github-actions/setup-gcloud@master
-#       with:
-#         version: '290.0.1'
-#         service_account_key: ${{ secrets.GKE_SA_KEY }}
-#         project_id: ${{ secrets.GKE_PROJECT }}
+     ## Setup gcloud CLI
+     - uses: google-github-actions/setup-gcloud@master
+       with:
+         version: '290.0.1'
+         service_account_key: ${{ secrets.GKE_SA_KEY }}
+         project_id: ${{ secrets.GKE_PROJECT }}
 
-#     # Configure Docker to use the gcloud command-line tool as a credential helper for authentication
-#     - run: |-
-#         gcloud --quiet auth configure-docker
-#     # Get the GKE credentials so we can deploy to the cluster
-#     - run: |-
-#         gcloud container clusters get-credentials "$GKE_CLUSTER1" --zone "$GKE_ZONE"
+     # Configure Docker to use the gcloud command-line tool as a credential helper for authentication
+     - run: |-
+         gcloud --quiet auth configure-docker
+     # Get the GKE credentials so we can deploy to the cluster
+     - run: |-
+         gcloud container clusters get-credentials "$GKE_CLUSTER1" --zone "$GKE_ZONE"
       
-#     - name: Update CloudFlare DNS with Cluster IP 
-#       run: |-
-#         # purge any existing records for our GCP subdomain.
-#         #existing_records=( $(curl -X GET "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records?type=A&name=${{ github.head_ref }}.sreyo.in" \
-#         existing_records=( $(curl -X GET "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records?type=A&name=nsdev.sreyo.in" \
-#            -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
-#            -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_API_KEY }}" \
-#            -H "Content-Type: application/json"   | jq -r '.result[].id') )
-#         for record in ${existing_records[@]}; do
-#           curl -X DELETE "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records/${record}" \
-#              -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
-#              -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_API_KEY }}" \
-#              -H "Content-Type: application/json"
-#         done
+     - name: Update CloudFlare DNS with Cluster IP 
+       run: |-
+         # purge any existing records for our GCP subdomain.
+         #existing_records=( $(curl -X GET "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records?type=A&name=${{ github.head_ref }}.sreyo.in" \
+         existing_records=( $(curl -X GET "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records?type=A&name=managedorg.sreyo.in" \
+            -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
+            -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_API_KEY }}" \
+            -H "Content-Type: application/json"   | jq -r '.result[].id') )
+         for record in ${existing_records[@]}; do
+           curl -X DELETE "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records/${record}" \
+              -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
+              -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_API_KEY }}" \
+              -H "Content-Type: application/json"
+         done
       
-#         # Create new record with latest cluster IP.
-#         CLUSTER_IP=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-#         curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records" \
-#            -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
-#            -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_API_KEY }}" \
-#            -H "Content-Type: application/json" \
-#            --data '{"type":"A","name":"nsdev","content":"'${CLUSTER_IP}'","ttl":120,"priority":10,"proxied":true}'
-#            #--data '{"type":"A","name":"${{ github.head_ref }}","content":"'${CLUSTER_IP}'","ttl":120,"priority":10,"proxied":true}'
+         # Create new record with latest cluster IP.
+         CLUSTER_IP=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+         curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_DNS_ZONE }}/dns_records" \
+            -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
+            -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            --data '{"type":"A","name":"managedorg","content":"'${CLUSTER_IP}'","ttl":120,"priority":10,"proxied":true}'
+            #--data '{"type":"A","name":"${{ github.head_ref }}","content":"'${CLUSTER_IP}'","ttl":120,"priority":10,"proxied":true}'
 
 #   Job3:
 #     needs: Job2
