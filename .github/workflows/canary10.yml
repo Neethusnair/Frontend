@@ -35,4 +35,4 @@ jobs:
    #deploy 10 percent canary
     - name: Deploy 10vs
       run: |-
-        kubectl apply -f vs-login10.yaml
+        kubectl apply -f vs-frontend10.yaml

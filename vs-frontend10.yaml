@@ -13,4 +13,11 @@ spec:
             host: frontend-service.default.svc.cluster.local
             port:
               number: 8081
-            #subset: v2
+            subset: v2
+          weight: 90  
+        - destination:
+            host: frontend-service.default.svc.cluster.local
+            port:
+              number: 8081
+            subset: v1
+          weight: 10 
