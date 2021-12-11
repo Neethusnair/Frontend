@@ -10,7 +10,7 @@ env:
 
 jobs:
  Job1: 
-    name: Deploy 10vs
+    name: Deploy 90vs
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +31,7 @@ jobs:
     - run: |-
         gcloud container clusters get-credentials "$GKE_CLUSTER3" --zone "$GKE_ZONE"
         
-   #deploy 10 percent canary
+   #deploy 90 percent canary
     - name: Deploy 90vs
       run: |-
-        kubectl apply -f vs-login90.yaml
+        kubectl apply -f vs-frontend90.yaml
