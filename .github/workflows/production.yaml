@@ -71,27 +71,15 @@ jobs:
           
         
     # Deploy docorized app image to the GKE cluster
-    - name: Deploy Login 
+    - name: Deploy Frontend 
       run: |-
-        kubectl apply -f secret.yaml
-        kubectl apply -f app-config.yaml 
-        kubectl apply -f app2.yaml
-        kubectl wait --timeout=90s --for=condition=ready pod -l app=login
-        kubectl rollout restart deploy login-prod-deployment
-        kubectl rollout status deployment login-prod-deployment
-   
-   #deploy welcome image    
-    - name: Deploy List
+        kubectl apply -f frontend2.yaml
+        kubectl wait --timeout=90s --for=condition=ready pod -l app=frontend
+        kubectl rollout restart deploy frontend-prod-deployment
+        kubectl rollout status deployment frontend-prod-deployment
+      
+    # deploy gateway and virtual services
+    - name: Direct traffic completely to Production
       run: |-
-        kubectl apply -f welcome2.yaml
-        kubectl wait --timeout=90s --for=condition=ready pod -l app=list
-        kubectl rollout status deployment list-prod-deployment
-        
-#    #deploy gateway and virtual services
-#     - name: Deploy gateway
-#       run: |-
-#         kubectl apply -f gateway.yaml
-#         kubectl get svc -l=istio=ingressgateway -n istio-system
-#         kubectl apply -f gateway.yaml
-#         kubectl apply -f vs-login.yaml
-#         kubectl apply -f vs-list.yaml
+        kubectl apply -f vs-frontend0.yaml
+
